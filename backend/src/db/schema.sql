@@ -1,4 +1,4 @@
--- Database Schema for Auth, Invite & Customer CRM System
+-- Database Schema for Auth, Invite, Customer CRM, Product & Inventory System
 
 CREATE TABLE IF NOT EXISTS users (
   id VARCHAR(36) PRIMARY KEY,
@@ -58,6 +58,35 @@ CREATE TABLE IF NOT EXISTS customer_notes (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Product & Inventory Tables
+CREATE TABLE IF NOT EXISTS products (
+  id VARCHAR(36) PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  sku VARCHAR(50) UNIQUE NOT NULL,
+  category VARCHAR(100),
+  unit_price NUMERIC(12,2) NOT NULL CHECK (unit_price >= 0),
+  current_stock INTEGER NOT NULL DEFAULT 0 CHECK (current_stock >= 0),
+  min_stock_alert INTEGER NOT NULL DEFAULT 0 CHECK (min_stock_alert >= 0),
+  location VARCHAR(100),
+  created_by VARCHAR(36) NOT NULL REFERENCES users(id),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS stock_movements (
+  id VARCHAR(36) PRIMARY KEY,
+  product_id VARCHAR(36) NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  quantity INTEGER NOT NULL CHECK (quantity > 0),
+  movement_type VARCHAR(10) NOT NULL CHECK (movement_type IN ('IN','OUT')),
+  reason VARCHAR(255) NOT NULL,
+  created_by VARCHAR(36) NOT NULL REFERENCES users(id),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE INDEX IF NOT EXISTS idx_customers_status ON customers(status);
 CREATE INDEX IF NOT EXISTS idx_customers_name ON customers(name);
 CREATE INDEX IF NOT EXISTS idx_customer_notes_customer_id ON customer_notes(customer_id);
+
+CREATE INDEX IF NOT EXISTS idx_products_sku ON products(sku);
+CREATE INDEX IF NOT EXISTS idx_products_name ON products(name);
+CREATE INDEX IF NOT EXISTS idx_stock_movements_product_id ON stock_movements(product_id);

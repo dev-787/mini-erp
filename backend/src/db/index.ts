@@ -88,6 +88,10 @@ export const initDb = async (): Promise<void> => {
   // Initialize Customer CRM tables
   const { initCustomerTables } = await import('./customer.db.js');
   await initCustomerTables();
+
+  // Initialize Product & Inventory tables
+  const { initProductTables } = await import('./product.db.js');
+  await initProductTables();
 };
 
 const seedDefaultUsers = async (): Promise<void> => {

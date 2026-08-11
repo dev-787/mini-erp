@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { getPool, isPgConnected, findUserById } from './index.js';
+import { getPool, isPgConnected, findUserById, findUserByEmail } from './index.js';
 import {
   Customer,
   CustomerNote,
@@ -66,7 +66,8 @@ const seedDefaultCustomers = async (): Promise<void> => {
   const existing = await findCustomers({ page: 1, limit: 1 });
   if (existing.total > 0) return;
 
-  const sampleAdminId = 'seed-admin-id';
+  const adminUser = await findUserByEmail('admin@example.com');
+  const sampleAdminId = adminUser ? adminUser.id : crypto.randomUUID();
 
   const samples: Array<Omit<Customer, 'id' | 'created_at' | 'updated_at'>> = [
     {
