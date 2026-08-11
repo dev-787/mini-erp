@@ -35,8 +35,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         {/* Header / Brand */}
         <div className="app-sidebar-header">
           <NavLink to="/dashboard" className="app-sidebar-brand" onClick={onClose}>
-            <img src={rapidLogo} alt="Logo" className="app-sidebar-logo" />
-            <span className="app-sidebar-title">Rapid ERP</span>
+            <img src={rapidLogo} alt="Rapid" className="app-sidebar-logo" />
           </NavLink>
 
           <button
