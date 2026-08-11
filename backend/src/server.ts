@@ -5,6 +5,7 @@ import { config } from './config/index.js';
 import { initDb } from './db/index.js';
 import authRoutes from './modules/auth/auth.routes.js';
 import customerRoutes from './modules/customer/customer.routes.js';
+import productRoutes from './modules/product/product.routes.js';
 
 const app = express();
 
@@ -39,6 +40,11 @@ app.use('/auth', authRoutes);
 
 app.use('/api/customers', customerRoutes);
 app.use('/customers', customerRoutes);
+
+app.use('/api/products', productRoutes);
+app.use('/products', productRoutes);
+app.use('/api/inventory', productRoutes);
+app.use('/inventory', productRoutes);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error('[Server Error]', err.stack || err.message || err);
