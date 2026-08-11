@@ -1,0 +1,66 @@
+.placeholder-page-card {
+  background: #FFFFFF;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  padding: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.placeholder-page-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.placeholder-page-icon-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background-color: rgba(255, 84, 14, 0.1);
+  color: #FF540E;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.placeholder-page-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: #0F172A;
+  letter-spacing: -0.02em;
+}
+
+.placeholder-page-subtitle {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #64748B;
+}
+
+.placeholder-status-banner {
+  margin-top: 24px;
+  padding: 16px 20px;
+  border-radius: 8px;
+  background-color: #F8FAFC;
+  border: 1px dashed #CBD5E1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.placeholder-status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FDE68A;
+}
