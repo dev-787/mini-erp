@@ -1,3 +1,5 @@
+import { clearAuthStore } from '../store/authStore';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api';
 
 const request = async (endpoint, options = {}) => {
@@ -28,15 +30,20 @@ const request = async (endpoint, options = {}) => {
 
       if (refreshRes.ok) {
         response = await fetch(url, config);
+      } else {
+        clearAuthStore();
       }
     } catch (err) {
-      // Refresh failed
+      clearAuthStore();
     }
   }
 
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
+    if (response.status === 401) {
+      clearAuthStore();
+    }
     const error = new Error(data.message || data.error || 'An API error occurred');
     error.status = response.status;
     error.data = data;

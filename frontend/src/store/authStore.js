@@ -14,6 +14,10 @@ const updateState = (newState) => {
   listeners.forEach((listener) => listener(globalState));
 };
 
+export const clearAuthStore = () => {
+  updateState({ user: null, loading: false, initialized: true });
+};
+
 export const useAuthStore = (selector) => {
   const [state, setState] = useState(globalState);
 

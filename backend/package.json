@@ -7,7 +7,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
-    "dev": "tsx watch src/server.ts",
+    "predev": "npx kill-port 5001",
+    "dev": "npx kill-port 5001 && tsx watch src/server.ts",
     "seed": "tsx src/db/seed.ts",
     "test": "tsx src/tests/auth.test.ts"
   },

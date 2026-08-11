@@ -1,4 +1,4 @@
-// Authentication API utilities communicating with Express Backend (Port 5001)
+import { clearAuthStore } from '../store/authStore';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api';
 
@@ -30,15 +30,20 @@ const request = async (endpoint, options = {}) => {
 
       if (refreshRes.ok) {
         response = await fetch(url, config);
+      } else {
+        clearAuthStore();
       }
     } catch (err) {
-      // Silent refresh failed
+      clearAuthStore();
     }
   }
 
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
+    if (response.status === 401 && endpoint !== '/auth/login' && endpoint !== '/auth/accept-invite') {
+      clearAuthStore();
+    }
     const error = new Error(data.message || 'An API error occurred');
     error.status = response.status;
     error.data = data;
