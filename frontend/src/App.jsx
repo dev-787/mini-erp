@@ -10,7 +10,8 @@ import RoleGuard from './components/auth/RoleGuard';
 import DashboardLayout from './components/layout/DashboardLayout';
 
 import OverviewPage from './pages/dashboard/OverviewPage';
-import CustomersPage from './pages/dashboard/CustomersPage';
+import CustomersListPage from './pages/dashboard/customers/CustomersListPage';
+import CustomerDetailPage from './pages/dashboard/customers/CustomerDetailPage';
 import ProductsPage from './pages/dashboard/ProductsPage';
 import InventoryPage from './pages/dashboard/InventoryPage';
 import ChallansPage from './pages/dashboard/ChallansPage';
@@ -40,7 +41,15 @@ function App() {
             path="customers"
             element={
               <RoleGuard path="/dashboard/customers">
-                <CustomersPage />
+                <CustomersListPage />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="customers/:id"
+            element={
+              <RoleGuard path="/dashboard/customers">
+                <CustomerDetailPage />
               </RoleGuard>
             }
           />
