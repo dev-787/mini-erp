@@ -6,6 +6,8 @@ import { initDb } from './db/index.js';
 import authRoutes from './modules/auth/auth.routes.js';
 import customerRoutes from './modules/customer/customer.routes.js';
 import productRoutes from './modules/product/product.routes.js';
+import inventoryRoutes from './modules/inventory/inventory.routes.js';
+import stockMovementRoutes from './modules/inventory/stockMovement.routes.js';
 
 const app = express();
 
@@ -43,10 +45,12 @@ app.use('/customers', customerRoutes);
 
 app.use('/api/products', productRoutes);
 app.use('/products', productRoutes);
-app.use('/api/inventory', productRoutes);
-app.use('/inventory', productRoutes);
-app.use('/api/stock-movements', productRoutes);
-app.use('/stock-movements', productRoutes);
+
+app.use('/api/inventory', inventoryRoutes);
+app.use('/inventory', inventoryRoutes);
+
+app.use('/api/stock-movements', stockMovementRoutes);
+app.use('/stock-movements', stockMovementRoutes);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error('[Server Error]', err.stack || err.message || err);
