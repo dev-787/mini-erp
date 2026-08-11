@@ -12,8 +12,11 @@ import DashboardLayout from './components/layout/DashboardLayout';
 import OverviewPage from './pages/dashboard/OverviewPage';
 import CustomersListPage from './pages/dashboard/customers/CustomersListPage';
 import CustomerDetailPage from './pages/dashboard/customers/CustomerDetailPage';
-import ProductsPage from './pages/dashboard/ProductsPage';
-import InventoryPage from './pages/dashboard/InventoryPage';
+
+import ProductsListPage from './pages/dashboard/products/ProductsListPage';
+import ProductDetailPage from './pages/dashboard/products/ProductDetailPage';
+import InventoryOverviewPage from './pages/dashboard/inventory/InventoryOverviewPage';
+
 import ChallansPage from './pages/dashboard/ChallansPage';
 import UsersPage from './pages/dashboard/UsersPage';
 import AuditLogPage from './pages/dashboard/AuditLogPage';
@@ -37,6 +40,8 @@ function App() {
           }
         >
           <Route index element={<OverviewPage />} />
+
+          {/* Customer CRM Routes */}
           <Route
             path="customers"
             element={
@@ -53,11 +58,21 @@ function App() {
               </RoleGuard>
             }
           />
+
+          {/* Product Catalog & Inventory Routes */}
           <Route
             path="products"
             element={
               <RoleGuard path="/dashboard/products">
-                <ProductsPage />
+                <ProductsListPage />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="products/:id"
+            element={
+              <RoleGuard path="/dashboard/products">
+                <ProductDetailPage />
               </RoleGuard>
             }
           />
@@ -65,10 +80,11 @@ function App() {
             path="inventory"
             element={
               <RoleGuard path="/dashboard/inventory">
-                <InventoryPage />
+                <InventoryOverviewPage />
               </RoleGuard>
             }
           />
+
           <Route
             path="challans"
             element={
