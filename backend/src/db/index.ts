@@ -7,10 +7,33 @@ import { User, Invite, Session, SafeUser, InviteResponse, SafeSession, UserRole,
 const { Pool } = pg;
 
 let pool: pg.Pool | null = null;
+let isPgConnectedFlag = false;
+
 export const getPool = () => pool;
 export const isPgConnected = () => isPgConnectedFlag;
 
-let isPgConnectedFlag = false;
+// Fallback in-memory data store if PostgreSQL service is not reachable locally
+const memoryDb: {
+  users: User[];
+  invites: Invite[];
+  sessions: Session[];
+} = {
+  users: [],
+  invites: [],
+  sessions: [],
+};
+
+if (config.databaseUrl) {
+  try {
+    pool = new Pool({
+      connectionString: config.databaseUrl,
+      ssl: { rejectUnauthorized: false },
+      connectionTimeoutMillis: 10000,
+    });
+  } catch (err: any) {
+    console.warn('[DB] Failed to create PG pool, using embedded DB engine:', err.message);
+  }
+}
 
 export const initDb = async (): Promise<void> => {
   if (pool) {
@@ -110,7 +133,7 @@ const seedDefaultUsers = async (): Promise<void> => {
 
 export const findUserByEmail = async (email: string): Promise<User | null> => {
   const normEmail = email.toLowerCase().trim();
-  if (isPgConnected && pool) {
+  if (isPgConnectedFlag && pool) {
     const res = await pool.query<User>('SELECT * FROM users WHERE LOWER(email) = $1', [normEmail]);
     return res.rows[0] || null;
   }
@@ -118,7 +141,7 @@ export const findUserByEmail = async (email: string): Promise<User | null> => {
 };
 
 export const findUserById = async (id: string): Promise<SafeUser | null> => {
-  if (isPgConnected && pool) {
+  if (isPgConnectedFlag && pool) {
     const res = await pool.query<SafeUser>('SELECT id, name, email, role, status, created_at FROM users WHERE id = $1', [id]);
     return res.rows[0] || null;
   }
@@ -129,7 +152,7 @@ export const findUserById = async (id: string): Promise<SafeUser | null> => {
 };
 
 export const insertUser = async (user: User): Promise<User> => {
-  if (isPgConnected && pool) {
+  if (isPgConnectedFlag && pool) {
     await pool.query(
       `INSERT INTO users (id, name, email, password_hash, role, status, created_at, updated_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
@@ -143,7 +166,7 @@ export const insertUser = async (user: User): Promise<User> => {
 
 // Sessions
 export const createSession = async (session: Session): Promise<Session> => {
-  if (isPgConnected && pool) {
+  if (isPgConnectedFlag && pool) {
     await pool.query(
       `INSERT INTO sessions (id, user_id, refresh_token_hash, user_agent, ip_address, revoked, expires_at, created_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
@@ -156,7 +179,7 @@ export const createSession = async (session: Session): Promise<Session> => {
 };
 
 export const findSessionByTokenHash = async (tokenHash: string): Promise<Session | null> => {
-  if (isPgConnected && pool) {
+  if (isPgConnectedFlag && pool) {
     const res = await pool.query<Session>('SELECT * FROM sessions WHERE refresh_token_hash = $1', [tokenHash]);
     return res.rows[0] || null;
   }
@@ -164,7 +187,7 @@ export const findSessionByTokenHash = async (tokenHash: string): Promise<Session
 };
 
 export const revokeSessionById = async (sessionId: string): Promise<void> => {
-  if (isPgConnected && pool) {
+  if (isPgConnectedFlag && pool) {
     await pool.query('UPDATE sessions SET revoked = true WHERE id = $1', [sessionId]);
     return;
   }
@@ -173,7 +196,7 @@ export const revokeSessionById = async (sessionId: string): Promise<void> => {
 };
 
 export const revokeSessionByTokenHash = async (tokenHash: string): Promise<void> => {
-  if (isPgConnected && pool) {
+  if (isPgConnectedFlag && pool) {
     await pool.query('UPDATE sessions SET revoked = true WHERE refresh_token_hash = $1', [tokenHash]);
     return;
   }
@@ -182,7 +205,7 @@ export const revokeSessionByTokenHash = async (tokenHash: string): Promise<void>
 };
 
 export const getUserSessions = async (userId: string): Promise<SafeSession[]> => {
-  if (isPgConnected && pool) {
+  if (isPgConnectedFlag && pool) {
     const res = await pool.query<SafeSession>(
       'SELECT id, user_agent, ip_address, revoked, expires_at, created_at FROM sessions WHERE user_id = $1 ORDER BY created_at DESC',
       [userId]
@@ -197,7 +220,7 @@ export const getUserSessions = async (userId: string): Promise<SafeSession[]> =>
 
 // Invites
 export const createInvite = async (invite: Invite): Promise<Invite> => {
-  if (isPgConnected && pool) {
+  if (isPgConnectedFlag && pool) {
     await pool.query(
       `INSERT INTO invites (id, email, role, token_hash, invited_by, status, expires_at, created_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
@@ -210,7 +233,7 @@ export const createInvite = async (invite: Invite): Promise<Invite> => {
 };
 
 export const findInviteByTokenHash = async (tokenHash: string): Promise<Invite | null> => {
-  if (isPgConnected && pool) {
+  if (isPgConnectedFlag && pool) {
     const res = await pool.query<Invite>('SELECT * FROM invites WHERE token_hash = $1', [tokenHash]);
     return res.rows[0] || null;
   }
@@ -218,7 +241,7 @@ export const findInviteByTokenHash = async (tokenHash: string): Promise<Invite |
 };
 
 export const updateInviteStatus = async (inviteId: string, status: InviteStatus): Promise<void> => {
-  if (isPgConnected && pool) {
+  if (isPgConnectedFlag && pool) {
     await pool.query('UPDATE invites SET status = $1 WHERE id = $2', [status, inviteId]);
     return;
   }
@@ -227,7 +250,7 @@ export const updateInviteStatus = async (inviteId: string, status: InviteStatus)
 };
 
 export const getAllInvites = async (): Promise<InviteResponse[]> => {
-  if (isPgConnected && pool) {
+  if (isPgConnectedFlag && pool) {
     const res = await pool.query<InviteResponse>(`
       SELECT i.id, i.email, i.role, i.status, i.expires_at, i.created_at, u.name as invited_by_name
       FROM invites i
@@ -258,7 +281,7 @@ export const getAllInvites = async (): Promise<InviteResponse[]> => {
 };
 
 export const getInviteById = async (id: string): Promise<Invite | null> => {
-  if (isPgConnected && pool) {
+  if (isPgConnectedFlag && pool) {
     const res = await pool.query<Invite>('SELECT * FROM invites WHERE id = $1', [id]);
     return res.rows[0] || null;
   }

@@ -46,7 +46,7 @@ export const getCustomers = async (req: AuthenticatedRequest, res: Response): Pr
  */
 export const getCustomerById = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const customer = await findCustomerById(id);
 
     if (!customer) {
@@ -112,7 +112,7 @@ export const createCustomer = async (req: AuthenticatedRequest, res: Response): 
  */
 export const updateCustomer = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     const existing = await findCustomerById(id);
     if (!existing) {
@@ -155,7 +155,7 @@ export const updateCustomer = async (req: AuthenticatedRequest, res: Response): 
  */
 export const getCustomerNotes = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     const existing = await findCustomerById(id);
     if (!existing) {
@@ -175,7 +175,7 @@ export const getCustomerNotes = async (req: AuthenticatedRequest, res: Response)
  */
 export const addCustomerNote = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
 
     const existing = await findCustomerById(id);
     if (!existing) {
