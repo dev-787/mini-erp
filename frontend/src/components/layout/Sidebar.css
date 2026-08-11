@@ -1,12 +1,12 @@
-/* Sidebar Styling */
+/* Sidebar Styling - Light Theme with Orange Accent */
 .app-sidebar {
   width: 260px;
   height: 100vh;
-  background-color: #0F172A;
-  color: #F8FAFC;
+  background-color: #FFFFFF;
+  color: #0F172A;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid #1E293B;
+  border-right: 1px solid #E2E8F0;
   position: fixed;
   top: 0;
   left: 0;
@@ -20,7 +20,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #1E293B;
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .app-sidebar-brand {
@@ -39,7 +39,7 @@
 .app-sidebar-title {
   font-size: 16px;
   font-weight: 700;
-  color: #FFFFFF;
+  color: #0F172A;
   letter-spacing: -0.01em;
 }
 
@@ -47,15 +47,15 @@
   display: none;
   background: transparent;
   border: none;
-  color: #94A3B8;
+  color: #64748B;
   cursor: pointer;
   padding: 4px;
   border-radius: 6px;
 }
 
 .app-sidebar-mobile-close:hover {
-  color: #FFFFFF;
-  background-color: #1E293B;
+  color: #0F172A;
+  background-color: #F1F5F9;
 }
 
 .app-sidebar-nav {
@@ -79,7 +79,7 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #64748B;
+  color: #94A3B8;
 }
 
 .app-sidebar-item {
@@ -90,20 +90,20 @@
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
-  color: #94A3B8;
+  color: #475569;
   text-decoration: none;
   transition: all 0.15s ease;
   position: relative;
 }
 
 .app-sidebar-item:hover {
-  color: #F8FAFC;
-  background-color: #1E293B;
+  color: #0F172A;
+  background-color: #F8FAFC;
 }
 
 .app-sidebar-item.active {
-  color: #FFFFFF;
-  background-color: rgba(255, 84, 14, 0.15);
+  color: #FF540E;
+  background-color: rgba(255, 84, 14, 0.08);
   font-weight: 600;
 }
 
@@ -134,8 +134,8 @@
 /* User Profile Block at Bottom */
 .app-sidebar-footer {
   padding: 16px;
-  border-top: 1px solid #1E293B;
-  background-color: #0B132B;
+  border-top: 1px solid #E2E8F0;
+  background-color: #F8FAFC;
 }
 
 .app-sidebar-user {
@@ -155,7 +155,7 @@
   justify-content: center;
   font-weight: 700;
   font-size: 16px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px rgba(255, 84, 14, 0.25);
   flex-shrink: 0;
 }
 
@@ -170,7 +170,7 @@
 .app-sidebar-user-name {
   font-size: 14px;
   font-weight: 600;
-  color: #F8FAFC;
+  color: #0F172A;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -187,29 +187,29 @@
   width: fit-content;
 }
 
-/* Role badge colors */
+/* Role badge colors for light sidebar */
 .role-badge-admin {
-  background-color: rgba(239, 68, 68, 0.15);
-  color: #FCA5A5;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background-color: #FEF2F2;
+  color: #DC2626;
+  border: 1px solid #FECACA;
 }
 
 .role-badge-sales {
-  background-color: rgba(59, 130, 246, 0.15);
-  color: #93C5FD;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background-color: #EFF6FF;
+  color: #2563EB;
+  border: 1px solid #BFDBFE;
 }
 
 .role-badge-warehouse {
-  background-color: rgba(245, 158, 11, 0.15);
-  color: #FDE68A;
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background-color: #FFFBEB;
+  color: #D97706;
+  border: 1px solid #FDE68A;
 }
 
 .role-badge-accounts {
-  background-color: rgba(16, 185, 129, 0.15);
-  color: #6EE7B7;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background-color: #ECFDF5;
+  color: #059669;
+  border: 1px solid #A7F3D0;
 }
 
 /* Mobile Drawer Overlay */
@@ -217,7 +217,7 @@
   display: none;
   position: fixed;
   inset: 0;
-  background-color: rgba(15, 23, 42, 0.6);
+  background-color: rgba(15, 23, 42, 0.4);
   backdrop-filter: blur(2px);
   z-index: 35;
 }
