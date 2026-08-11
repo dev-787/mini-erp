@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import { config } from './config/index.js';
 import { initDb } from './db/index.js';
 import authRoutes from './modules/auth/auth.routes.js';
+import customerRoutes from './modules/customer/customer.routes.js';
 
 const app = express();
 
@@ -35,6 +36,9 @@ app.get('/health', (req: Request, res: Response) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/auth', authRoutes);
+
+app.use('/api/customers', customerRoutes);
+app.use('/customers', customerRoutes);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error('[Server Error]', err.stack || err.message || err);
