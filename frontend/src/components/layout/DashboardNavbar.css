@@ -1,0 +1,137 @@
+/* Top Navbar Styling */
+.app-navbar {
+  height: 64px;
+  background-color: #FFFFFF;
+  border-bottom: 1px solid #E2E8F0;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+}
+
+.app-navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.app-navbar-mobile-toggle {
+  display: none;
+  background: transparent;
+  border: 1px solid #CBD5E1;
+  color: #334155;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.app-navbar-mobile-toggle:hover {
+  background-color: #F1F5F9;
+  color: #0F172A;
+}
+
+.app-navbar-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748B;
+}
+
+.app-navbar-company {
+  font-weight: 600;
+  color: #1E293B;
+}
+
+.app-navbar-breadcrumb-divider {
+  color: #94A3B8;
+  font-size: 13px;
+}
+
+.app-navbar-section {
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.app-navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Search Box Placeholder */
+.app-navbar-search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 260px;
+}
+
+.app-navbar-search-icon {
+  position: absolute;
+  left: 12px;
+  color: #94A3B8;
+  pointer-events: none;
+}
+
+.app-navbar-search-input {
+  width: 100%;
+  padding: 8px 12px 8px 36px;
+  font-size: 13px;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
+  background-color: #F8FAFC;
+  color: #64748B;
+  cursor: not-allowed;
+  outline: none;
+}
+
+.app-navbar-search-input::placeholder {
+  color: #94A3B8;
+}
+
+/* Logout Button */
+.app-navbar-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #DC2626;
+  background-color: #FEF2F2;
+  border: 1px solid #FCA5A5;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.app-navbar-logout-btn:hover {
+  background-color: #FEE2E2;
+  color: #B91C1C;
+  border-color: #F87171;
+}
+
+@media (max-width: 1024px) {
+  .app-navbar-mobile-toggle {
+    display: flex;
+  }
+
+  .app-navbar-search-wrapper {
+    width: 180px;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-navbar-search-wrapper {
+    display: none;
+  }
+}
