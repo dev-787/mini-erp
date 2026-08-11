@@ -7,30 +7,10 @@ import { User, Invite, Session, SafeUser, InviteResponse, SafeSession, UserRole,
 const { Pool } = pg;
 
 let pool: pg.Pool | null = null;
-let isPgConnected = false;
+export const getPool = () => pool;
+export const isPgConnected = () => isPgConnectedFlag;
 
-// Fallback in-memory data store if PostgreSQL service is not reachable locally
-const memoryDb: {
-  users: User[];
-  invites: Invite[];
-  sessions: Session[];
-} = {
-  users: [],
-  invites: [],
-  sessions: [],
-};
-
-if (config.databaseUrl) {
-  try {
-    pool = new Pool({
-      connectionString: config.databaseUrl,
-      ssl: { rejectUnauthorized: false },
-      connectionTimeoutMillis: 10000,
-    });
-  } catch (err: any) {
-    console.warn('[DB] Failed to create PG pool, using embedded DB engine:', err.message);
-  }
-}
+let isPgConnectedFlag = false;
 
 export const initDb = async (): Promise<void> => {
   if (pool) {
@@ -71,16 +51,20 @@ export const initDb = async (): Promise<void> => {
         );
       `);
       client.release();
-      isPgConnected = true;
+      isPgConnectedFlag = true;
       console.log('[DB] PostgreSQL database initialized successfully.');
     } catch (err: any) {
       console.warn('[DB] Could not connect to PostgreSQL. Using embedded memory store fallback:', err.message);
-      isPgConnected = false;
+      isPgConnectedFlag = false;
     }
   }
 
   // Seed default admin and sample accounts if empty
   await seedDefaultUsers();
+
+  // Initialize Customer CRM tables
+  const { initCustomerTables } = await import('./customer.db.js');
+  await initCustomerTables();
 };
 
 const seedDefaultUsers = async (): Promise<void> => {

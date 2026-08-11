@@ -1,4 +1,4 @@
--- Database Schema for Auth & Invite System in Wholesale/Distribution ERP
+-- Database Schema for Auth, Invite & Customer CRM System
 
 CREATE TABLE IF NOT EXISTS users (
   id VARCHAR(36) PRIMARY KEY,
@@ -32,3 +32,32 @@ CREATE TABLE IF NOT EXISTS sessions (
   expires_at TIMESTAMP NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Customer CRM Tables
+CREATE TABLE IF NOT EXISTS customers (
+  id VARCHAR(36) PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  mobile VARCHAR(20) NOT NULL,
+  email VARCHAR(255),
+  business_name VARCHAR(255),
+  gst_number VARCHAR(20),
+  customer_type VARCHAR(20) NOT NULL CHECK (customer_type IN ('Retail','Wholesale','Distributor')),
+  address TEXT,
+  status VARCHAR(20) NOT NULL DEFAULT 'Lead' CHECK (status IN ('Lead','Active','Inactive')),
+  follow_up_date DATE,
+  created_by VARCHAR(36) NOT NULL REFERENCES users(id),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS customer_notes (
+  id VARCHAR(36) PRIMARY KEY,
+  customer_id VARCHAR(36) NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
+  note TEXT NOT NULL,
+  created_by VARCHAR(36) NOT NULL REFERENCES users(id),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_customers_status ON customers(status);
+CREATE INDEX IF NOT EXISTS idx_customers_name ON customers(name);
+CREATE INDEX IF NOT EXISTS idx_customer_notes_customer_id ON customer_notes(customer_id);
