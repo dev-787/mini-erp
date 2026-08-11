@@ -9,6 +9,8 @@ import {
   findStockMovements,
   recordStockMovement,
   findLowStockProducts,
+  getInventorySummary as dbGetInventorySummary,
+  findGlobalStockMovements,
 } from '../../db/product.db.js';
 import {
   validateCreateProduct,
@@ -249,3 +251,49 @@ export const getLowStockProducts = async (req: AuthenticatedRequest, res: Respon
     return res.status(500).json({ message: 'Failed to retrieve low stock inventory report.' });
   }
 };
+
+/**
+ * GET /inventory/summary
+ */
+export const getInventorySummary = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+  try {
+    const summary = await dbGetInventorySummary();
+    return res.json(summary);
+  } catch (err: any) {
+    console.error('[ProductController] getInventorySummary error:', err);
+    return res.status(500).json({ message: 'Failed to retrieve inventory summary statistics.' });
+  }
+};
+
+/**
+ * GET /stock-movements (Global Cross-Product Ledger)
+ */
+export const getGlobalStockMovements = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.max(1, Math.min(100, parseInt(req.query.limit as string) || 20));
+    const product_id = req.query.product_id ? String(req.query.product_id) : undefined;
+    const movement_type = (req.query.movement_type === 'IN' || req.query.movement_type === 'OUT')
+      ? req.query.movement_type
+      : undefined;
+    const date_from = req.query.date_from ? String(req.query.date_from) : undefined;
+    const date_to = req.query.date_to ? String(req.query.date_to) : undefined;
+    const search = req.query.search ? String(req.query.search).trim() : undefined;
+
+    const result = await findGlobalStockMovements({
+      page,
+      limit,
+      product_id,
+      movement_type,
+      date_from,
+      date_to,
+      search,
+    });
+
+    return res.json(result);
+  } catch (err: any) {
+    console.error('[ProductController] getGlobalStockMovements error:', err);
+    return res.status(500).json({ message: 'Failed to retrieve global stock movement ledger.' });
+  }
+};
+

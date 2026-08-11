@@ -604,3 +604,249 @@ export const findLowStockProducts = async (): Promise<Product[]> => {
     .sort((a, b) => a.current_stock - b.current_stock)
     .map(mapProductWithAlert);
 };
+
+/**
+ * Get aggregate summary stats for top-of-page inventory cards
+ */
+export const getInventorySummary = async (): Promise<{
+  totalInventoryValue: number;
+  totalProducts: number;
+  lowStockCount: number;
+  todayMovementsIn: number;
+  todayMovementsOut: number;
+}> => {
+  const pool = getPool();
+
+  if (pool && isPgConnected()) {
+    try {
+      const prodAggRes = await pool.query(`
+        SELECT
+          COALESCE(SUM(current_stock * unit_price), 0)::numeric AS total_inventory_value,
+          COUNT(*)::int AS total_products,
+          COUNT(CASE WHEN current_stock <= min_stock_alert THEN 1 END)::int AS low_stock_count
+        FROM products
+      `);
+
+      const movAggRes = await pool.query(`
+        SELECT
+          COUNT(CASE WHEN movement_type = 'IN' THEN 1 END)::int AS today_movements_in,
+          COUNT(CASE WHEN movement_type = 'OUT' THEN 1 END)::int AS today_movements_out
+        FROM stock_movements
+        WHERE created_at >= CURRENT_DATE
+      `);
+
+      const prodRow = prodAggRes.rows[0] || {};
+      const movRow = movAggRes.rows[0] || {};
+
+      return {
+        totalInventoryValue: Number(prodRow.total_inventory_value || 0),
+        totalProducts: Number(prodRow.total_products || 0),
+        lowStockCount: Number(prodRow.low_stock_count || 0),
+        todayMovementsIn: Number(movRow.today_movements_in || 0),
+        todayMovementsOut: Number(movRow.today_movements_out || 0),
+      };
+    } catch (err: any) {
+      console.warn('[ProductDB] Inventory summary PG query error:', err.message);
+    }
+  }
+
+  // Memory fallback logic
+  const totalInventoryValue = memoryProducts.reduce(
+    (sum, p) => sum + p.current_stock * p.unit_price,
+    0
+  );
+  const totalProducts = memoryProducts.length;
+  const lowStockCount = memoryProducts.filter((p) => p.current_stock <= p.min_stock_alert).length;
+
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+
+  const todayMovements = memoryStockMovements.filter(
+    (m) => new Date(m.created_at).getTime() >= startOfToday.getTime()
+  );
+
+  const todayMovementsIn = todayMovements.filter((m) => m.movement_type === 'IN').length;
+  const todayMovementsOut = todayMovements.filter((m) => m.movement_type === 'OUT').length;
+
+  return {
+    totalInventoryValue,
+    totalProducts,
+    lowStockCount,
+    todayMovementsIn,
+    todayMovementsOut,
+  };
+};
+
+export interface GlobalStockMovementQueryParams {
+  page?: number;
+  limit?: number;
+  product_id?: string;
+  movement_type?: 'IN' | 'OUT';
+  date_from?: string;
+  date_to?: string;
+  search?: string;
+}
+
+export interface GlobalStockMovementItem extends StockMovement {
+  product_name: string;
+  product_sku: string;
+}
+
+/**
+ * Get cross-product global stock movement audit ledger
+ */
+export const findGlobalStockMovements = async (
+  params: GlobalStockMovementQueryParams
+): Promise<{
+  data: GlobalStockMovementItem[];
+  total: number;
+  page: number;
+  limit: number;
+}> => {
+  const page = Math.max(1, Number(params.page) || 1);
+  const limit = Math.max(1, Math.min(100, Number(params.limit) || 20));
+  const offset = (page - 1) * limit;
+
+  const pool = getPool();
+
+  if (pool && isPgConnected()) {
+    try {
+      const whereClauses: string[] = [];
+      const values: any[] = [];
+      let valIdx = 1;
+
+      if (params.product_id) {
+        whereClauses.push(`sm.product_id = $${valIdx}`);
+        values.push(params.product_id);
+        valIdx++;
+      }
+
+      if (params.movement_type) {
+        whereClauses.push(`sm.movement_type = $${valIdx}`);
+        values.push(params.movement_type);
+        valIdx++;
+      }
+
+      if (params.date_from) {
+        whereClauses.push(`sm.created_at >= $${valIdx}`);
+        values.push(params.date_from);
+        valIdx++;
+      }
+
+      if (params.date_to) {
+        whereClauses.push(`sm.created_at <= $${valIdx}`);
+        values.push(params.date_to);
+        valIdx++;
+      }
+
+      if (params.search) {
+        whereClauses.push(`(p.name ILIKE $${valIdx} OR p.sku ILIKE $${valIdx} OR sm.reason ILIKE $${valIdx})`);
+        values.push(`%${params.search}%`);
+        valIdx++;
+      }
+
+      const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
+      const countRes = await pool.query(
+        `SELECT COUNT(*)::int AS total
+         FROM stock_movements sm
+         JOIN products p ON sm.product_id = p.id
+         ${whereSql}`,
+        values
+      );
+      const total = countRes.rows[0]?.total || 0;
+
+      const dataRes = await pool.query(
+        `SELECT
+           sm.id,
+           sm.product_id,
+           p.name AS product_name,
+           p.sku AS product_sku,
+           sm.quantity,
+           sm.movement_type,
+           sm.reason,
+           sm.created_by,
+           u.name AS created_by_name,
+           sm.created_at
+         FROM stock_movements sm
+         JOIN products p ON sm.product_id = p.id
+         LEFT JOIN users u ON sm.created_by = u.id
+         ${whereSql}
+         ORDER BY sm.created_at DESC
+         LIMIT $${valIdx} OFFSET $${valIdx + 1}`,
+        [...values, limit, offset]
+      );
+
+      return {
+        data: dataRes.rows,
+        total,
+        page,
+        limit,
+      };
+    } catch (err: any) {
+      console.warn('[ProductDB] Global stock movements PG error:', err.message);
+    }
+  }
+
+  // Memory fallback logic
+  let filtered = memoryStockMovements.map((sm) => {
+    const prod = memoryProducts.find((p) => p.id === sm.product_id);
+    return {
+      ...sm,
+      product_name: prod ? prod.name : 'Unknown Product',
+      product_sku: prod ? prod.sku : 'SKU-000',
+    };
+  });
+
+  if (params.product_id) {
+    filtered = filtered.filter((sm) => sm.product_id === params.product_id);
+  }
+
+  if (params.movement_type) {
+    filtered = filtered.filter((sm) => sm.movement_type === params.movement_type);
+  }
+
+  if (params.date_from) {
+    const from = new Date(params.date_from).getTime();
+    filtered = filtered.filter((sm) => new Date(sm.created_at).getTime() >= from);
+  }
+
+  if (params.date_to) {
+    const to = new Date(params.date_to).getTime();
+    filtered = filtered.filter((sm) => new Date(sm.created_at).getTime() <= to);
+  }
+
+  if (params.search) {
+    const s = params.search.toLowerCase();
+    filtered = filtered.filter(
+      (sm) =>
+        sm.product_name.toLowerCase().includes(s) ||
+        sm.product_sku.toLowerCase().includes(s) ||
+        sm.reason.toLowerCase().includes(s)
+    );
+  }
+
+  filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+  const total = filtered.length;
+  const paginated = filtered.slice(offset, offset + limit);
+
+  const resolved = await Promise.all(
+    paginated.map(async (sm) => {
+      if (sm.created_by_name) return sm;
+      const user = await findUserById(sm.created_by);
+      return {
+        ...sm,
+        created_by_name: user?.name || 'System User',
+      };
+    })
+  );
+
+  return {
+    data: resolved,
+    total,
+    page,
+    limit,
+  };
+};
+

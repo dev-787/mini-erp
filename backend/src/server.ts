@@ -45,6 +45,8 @@ app.use('/api/products', productRoutes);
 app.use('/products', productRoutes);
 app.use('/api/inventory', productRoutes);
 app.use('/inventory', productRoutes);
+app.use('/api/stock-movements', productRoutes);
+app.use('/stock-movements', productRoutes);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error('[Server Error]', err.stack || err.message || err);

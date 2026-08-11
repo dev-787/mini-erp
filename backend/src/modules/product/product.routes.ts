@@ -8,6 +8,8 @@ import {
   getStockMovements,
   addStockMovement,
   getLowStockProducts,
+  getInventorySummary,
+  getGlobalStockMovements,
 } from './product.controller.js';
 
 const router = Router();
@@ -15,8 +17,14 @@ const router = Router();
 // Protect all endpoints with authentication
 router.use(authenticate);
 
-// Low-stock cross-product inventory overview endpoint (Admin, Warehouse, Sales)
-router.get('/inventory/low-stock', authorize('admin', 'warehouse', 'sales'), getLowStockProducts);
+// Global Stock Movements Ledger (Admin, Warehouse only)
+router.get('/stock-movements', authorize('admin', 'warehouse'), getGlobalStockMovements);
+
+// Aggregate Inventory Summary Stats (Admin, Warehouse only)
+router.get('/inventory/summary', authorize('admin', 'warehouse'), getInventorySummary);
+
+// Low-stock Inventory Report (Admin, Warehouse only)
+router.get('/inventory/low-stock', authorize('admin', 'warehouse'), getLowStockProducts);
 
 // List Products (Admin, Warehouse, Sales)
 router.get('/', authorize('admin', 'warehouse', 'sales'), getProducts);
@@ -30,7 +38,7 @@ router.get('/:id', authorize('admin', 'warehouse', 'sales'), getProductById);
 // Update Product (Admin, Warehouse only)
 router.patch('/:id', authorize('admin', 'warehouse'), updateProduct);
 
-// Get Stock Movement History (Admin, Warehouse, Sales)
+// Get Stock Movement History for single product (Admin, Warehouse, Sales)
 router.get('/:id/stock-movements', authorize('admin', 'warehouse', 'sales'), getStockMovements);
 
 // Log Stock Movement IN/OUT (Admin, Warehouse only)
