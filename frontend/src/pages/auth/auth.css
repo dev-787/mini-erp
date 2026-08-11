@@ -1,0 +1,164 @@
+/* Styles for Authentication Pages (Login & Signup) */
+
+.auth-page-container {
+  min-height: 100vh;
+  background-color: #F9FAFB;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: hidden;
+  position: relative;
+  padding: 60px 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Vertical grid lines extending through the full screen height */
+.grid-v-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: #E2E8F0;
+  pointer-events: none;
+}
+
+.grid-v-line-left {
+  left: calc(50% - 230px);
+}
+
+.grid-v-line-right {
+  left: calc(50% + 230px);
+}
+
+.auth-center-column {
+  width: 460px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+}
+
+.auth-row {
+  width: 100%;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Horizontal grid lines extending screen-wide */
+.grid-h-line {
+  position: absolute;
+  left: -100vw;
+  right: -100vw;
+  height: 1px;
+  background-color: #E2E8F0;
+  pointer-events: none;
+}
+
+/* Monospace intersection plus symbol style */
+.grid-plus {
+  position: absolute;
+  font-size: 13px;
+  color: #94A3B8;
+  background-color: #F9FAFB;
+  width: 11px;
+  height: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: monospace;
+  line-height: 1;
+  z-index: 20;
+  pointer-events: none;
+  user-select: none;
+}
+
+.grid-plus-tl { top: -6px; left: -5px; }
+.grid-plus-tr { top: -6px; right: -5px; }
+.grid-plus-bl { bottom: -6px; left: -5px; }
+.grid-plus-br { bottom: -6px; right: -5px; }
+
+/* Form styling */
+.auth-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.auth-input {
+  width: 100%;
+  border: 1px solid #D1D5DB;
+  border-radius: 9999px;
+  padding: 11px 20px;
+  background: #FFFFFF;
+  color: #0F172A;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.auth-input:focus {
+  border-color: #FF540E;
+  box-shadow: 0 0 0 3px rgba(255, 84, 14, 0.15);
+}
+
+.auth-input::placeholder {
+  color: #9CA3AF;
+}
+
+.auth-button-submit {
+  width: 100%;
+  background: #FF540E;
+  color: #FFFFFF;
+  border-radius: 9999px;
+  border: none;
+  padding: 12.5px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  margin-top: 8px;
+}
+
+.auth-button-submit:hover:not(:disabled) {
+  background: #E04300;
+}
+
+.auth-button-submit:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.auth-button-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth-footnote {
+  font-size: 11.5px;
+  color: #94A3B8;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.auth-footnote a {
+  color: #64748B;
+  text-decoration: underline;
+  transition: color 0.15s;
+}
+
+.auth-footnote a:hover {
+  color: #0F172A;
+}
+
+/* Error message shake animation */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+.animate-shake {
+  animation: shake 0.4s ease-in-out;
+}
