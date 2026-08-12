@@ -21,6 +21,6 @@ export const config: Config = {
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || 'super-secret-refresh-key-mini-erp-2026',
   accessTokenExpiry: '15m',
   refreshTokenExpiryDays: 7,
-  cookieSecure: process.env.NODE_ENV === 'production',
-  cookieSameSite: 'strict',
+  cookieSecure: process.env.COOKIE_SECURE === 'true' || process.env.NODE_ENV === 'production',
+  cookieSameSite: (process.env.COOKIE_SAME_SITE as 'strict' | 'lax' | 'none') || (process.env.NODE_ENV === 'production' ? 'none' : 'lax'),
 };
