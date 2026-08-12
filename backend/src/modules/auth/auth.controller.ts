@@ -125,6 +125,8 @@ export const login = async (req: AuthenticatedRequest, res: Response): Promise<a
 
     return res.json({
       message: 'Login successful',
+      token: accessToken,
+      refreshToken: refreshTokenJWT,
       user: {
         id: user.id,
         name: user.name,
@@ -140,10 +142,10 @@ export const login = async (req: AuthenticatedRequest, res: Response): Promise<a
 
 export const refresh = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
   try {
-    const refreshTokenJWT = req.cookies?.refresh_token;
+    const refreshTokenJWT = req.cookies?.refresh_token || req.body?.refreshToken;
     if (!refreshTokenJWT) {
       clearAuthCookies(res);
-      return res.status(401).json({ message: 'Refresh token cookie missing.' });
+      return res.status(401).json({ message: 'Refresh token missing.' });
     }
 
     let decoded: JWTRefreshPayload;
@@ -207,6 +209,8 @@ export const refresh = async (req: AuthenticatedRequest, res: Response): Promise
 
     return res.json({
       message: 'Token refreshed successfully',
+      token: newAccessToken,
+      refreshToken: newRefreshTokenJWT,
       user: {
         id: user.id,
         name: user.name,
@@ -421,6 +425,8 @@ export const acceptInvite = async (req: AuthenticatedRequest, res: Response): Pr
 
     return res.status(201).json({
       message: 'Account created and logged in successfully',
+      token: accessToken,
+      refreshToken: refreshTokenJWT,
       user: {
         id: userId,
         name: newUser.name,

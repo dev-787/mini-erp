@@ -1,69 +1,27 @@
 import { clearAuthStore } from '../store/authStore';
-import { API_BASE_URL } from './config';
-
-const request = async (endpoint, options = {}) => {
-  const url = `${API_BASE_URL}${endpoint}`;
-  const config = {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-    credentials: 'include', // Automatically send and receive httpOnly cookies
-  };
-
-  if (config.body && typeof config.body === 'object') {
-    config.body = JSON.stringify(config.body);
-  }
-
-  let response = await fetch(url, config);
-
-  // If 401 Unauthorized and not calling refresh/login/accept-invite, attempt silent refresh
-  if (response.status === 401 && endpoint !== '/auth/refresh' && endpoint !== '/auth/login' && endpoint !== '/auth/accept-invite') {
-    try {
-      const refreshRes = await fetch(`${API_BASE_URL}/auth/refresh`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-      });
-
-      if (refreshRes.ok) {
-        response = await fetch(url, config);
-      } else {
-        clearAuthStore();
-      }
-    } catch (err) {
-      clearAuthStore();
-    }
-  }
-
-  const data = await response.json().catch(() => ({}));
-
-  if (!response.ok) {
-    if (response.status === 401 && endpoint !== '/auth/login' && endpoint !== '/auth/accept-invite') {
-      clearAuthStore();
-    }
-    const error = new Error(data.message || 'An API error occurred');
-    error.status = response.status;
-    error.data = data;
-    throw error;
-  }
-
-  return data;
-};
+import { request, setAuthTokens, clearAuthTokens } from './config';
 
 // Auth API Methods
 export const login = async ({ email, password }) => {
-  return request('/auth/login', {
+  const data = await request('/auth/login', {
     method: 'POST',
     body: { email, password },
   });
+  if (data.token) {
+    setAuthTokens({ accessToken: data.token, refreshToken: data.refreshToken });
+  }
+  return data;
 };
 
 export const logout = async () => {
-  return request('/auth/logout', {
-    method: 'POST',
-  });
+  try {
+    return await request('/auth/logout', {
+      method: 'POST',
+    });
+  } finally {
+    clearAuthTokens();
+    clearAuthStore();
+  }
 };
 
 export const fetchMe = async () => {
@@ -73,9 +31,13 @@ export const fetchMe = async () => {
 };
 
 export const refresh = async () => {
-  return request('/auth/refresh', {
+  const data = await request('/auth/refresh', {
     method: 'POST',
   });
+  if (data.token) {
+    setAuthTokens({ accessToken: data.token, refreshToken: data.refreshToken });
+  }
+  return data;
 };
 
 // Invite System Methods
@@ -93,10 +55,14 @@ export const getInviteByToken = async (token) => {
 };
 
 export const acceptInvite = async ({ token, name, password }) => {
-  return request('/auth/accept-invite', {
+  const data = await request('/auth/accept-invite', {
     method: 'POST',
     body: { token, name, password },
   });
+  if (data.token) {
+    setAuthTokens({ accessToken: data.token, refreshToken: data.refreshToken });
+  }
+  return data;
 };
 
 export const getInvites = async () => {

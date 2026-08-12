@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { fetchMe, logout as apiLogout } from '../api/auth.api';
+import { clearAuthTokens } from '../api/config';
 
 let globalState = {
   user: null,
@@ -15,6 +16,7 @@ const updateState = (newState) => {
 };
 
 export const clearAuthStore = () => {
+  clearAuthTokens();
   updateState({ user: null, loading: false, initialized: true });
 };
 

@@ -15,6 +15,9 @@ import dashboardRoutes from './modules/dashboard/dashboard.routes.js';
 
 const app = express();
 
+// Trust reverse proxy (Render, Heroku, Nginx) for secure httpOnly cookies over HTTPS
+app.set('trust proxy', 1);
+
 const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
