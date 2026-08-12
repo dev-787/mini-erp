@@ -8,6 +8,7 @@ import customerRoutes from './modules/customer/customer.routes.js';
 import productRoutes from './modules/product/product.routes.js';
 import inventoryRoutes from './modules/inventory/inventory.routes.js';
 import stockMovementRoutes from './modules/inventory/stockMovement.routes.js';
+import challanRoutes from './modules/challan/challan.routes.js';
 
 const app = express();
 
@@ -51,6 +52,9 @@ app.use('/inventory', inventoryRoutes);
 
 app.use('/api/stock-movements', stockMovementRoutes);
 app.use('/stock-movements', stockMovementRoutes);
+
+app.use('/api/challans', challanRoutes);
+app.use('/challans', challanRoutes);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error('[Server Error]', err.stack || err.message || err);
