@@ -37,6 +37,14 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
+app.get('/', (req: Request, res: Response) => {
+  res.json({
+    message: '🚀 Mini-ERP Backend Server is running successfully!',
+    status: 'online',
+    timestamp: new Date().toISOString(),
+  });
+});
+
 app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });

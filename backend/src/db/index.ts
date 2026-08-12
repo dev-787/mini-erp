@@ -2,7 +2,7 @@ import pg from 'pg';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { config } from '../config/index.js';
-import { User, Invite, Session, SafeUser, InviteResponse, SafeSession, UserRole, InviteStatus } from '../types/auth.js';
+import { User, Invite, Session, SafeUser, InviteResponse, SafeSession, UserRole, UserStatus, InviteStatus } from '../types/auth.js';
 
 const { Pool } = pg;
 
