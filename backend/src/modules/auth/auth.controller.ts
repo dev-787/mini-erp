@@ -46,7 +46,7 @@ const setAuthCookies = (res: Response, accessToken: string, refreshToken: string
     secure: config.cookieSecure,
     sameSite: config.cookieSameSite,
     maxAge: config.refreshTokenExpiryDays * 24 * 60 * 60 * 1000,
-    path: '/api/auth/refresh',
+    path: '/',
   });
 };
 
@@ -64,7 +64,7 @@ const clearAuthCookies = (res: Response): void => {
     secure: config.cookieSecure,
     sameSite: config.cookieSameSite,
     maxAge: 0,
-    path: '/api/auth/refresh',
+    path: '/',
   });
 };
 

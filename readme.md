@@ -4,12 +4,31 @@ An enterprise-grade internal Web Platform engineered for wholesale and distribut
 
 ---
 
+## 🌐 Live Demo & Deployment Links
+
+Anyone can test out the live production deployment of the ERP & CRM system using the credentials below:
+
+- 🚀 **Live Frontend Application**: [https://mini-erp-xi-seven.vercel.app](https://mini-erp-xi-seven.vercel.app)
+- ⚡ **Live Backend REST API**: [https://mini-erp-u8vt.onrender.com/api](https://mini-erp-u8vt.onrender.com/api)
+
+### Quick Test Credentials
+Log in at [https://mini-erp-xi-seven.vercel.app](https://mini-erp-xi-seven.vercel.app) with any of the following accounts:
+
+| Role | Email Address | Password | Primary Features to Test |
+|---|---|---|---|
+| **👑 Admin** | `admin@example.com` | `Admin@123` | User Invites, Session Security, Full CRM/Inventory/Challan Controls |
+| **💼 Sales** | `sales@example.com` | `Sales@123` | Customer CRM Management, Sales Challan Creation & Dispatching |
+| **📦 Warehouse** | `warehouse@example.com` | `Warehouse@123` | Product Catalog, Stock Audits (Stock IN/OUT), Low-Stock Alerts |
+| **📊 Accounts** | `accounts@example.com` | `Accounts@123` | Financial Overview, Confirmed Challan Audit, Billing Reports |
+
+---
+
 ## 🏛️ System Architecture
 
 ```text
 ┌─────────────────────────┐               HTTPS REST + httpOnly Cookies              ┌─────────────────────────┐
-│     React 19 (SPA)      │ ─────────────────────────────────────────────────────────> │   Express (TypeScript)  │
-│  Internal ERP & CRM UI  │ <───────────────────────────────────────────────────────── │  Stateless REST API     │
+│  React 19 + Vite (SPA)  │ ─────────────────────────────────────────────────────────> │ Express (TypeScript API)│
+│ Hosted on Vercel Edge   │ <───────────────────────────────────────────────────────── │   Hosted on Render      │
 └─────────────────────────┘                                                          └────────────┬────────────┘
                                                                                                   │ SQL (Pool)
                                                                                                   ▼
@@ -19,9 +38,9 @@ An enterprise-grade internal Web Platform engineered for wholesale and distribut
                                                                                      └─────────────────────────┘
 ```
 
-- **Backend Architecture**: Built with **Node.js, Express, and TypeScript** (`dist/server.js`). Standardized controller layer, strongly-typed domain interfaces, centralized error management, and server-side role authorization guards.
-- **Database Layer**: Hosted on **Neon Cloud PostgreSQL** with transaction-safe connection pooling, automated schema migrations, and an embedded zero-config fallback runner for offline/local environments.
-- **Frontend Layer**: Built with **React 19, JavaScript (ESNext), and Vite**, featuring a responsive role-aware UI, in-memory auth state management, and custom modal control panels.
+- **Frontend Layer**: Deployed on **Vercel** (`https://mini-erp-xi-seven.vercel.app`), built with **React 19, JavaScript (ESNext), and Vite**. Features dynamic role-aware UI, in-memory auth state management, and real-time dashboard visualization.
+- **Backend Architecture**: Deployed on **Render** (`https://mini-erp-u8vt.onrender.com`), built with **Node.js, Express, and TypeScript**. Standardized controller layer, centralized error management, and server-side role authorization guards.
+- **Database Layer**: Hosted on **Neon Cloud PostgreSQL** with transaction-safe connection pooling, automated schema migrations, and persistent data storage across deployments.
 
 ---
 
