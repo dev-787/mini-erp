@@ -157,8 +157,8 @@ cp .env.example .env
 PORT=5001
 NODE_ENV=development
 DATABASE_URL=postgresql://neondb_owner:npg_3UwOQ4tIAWVq@ep-delicate-moon-axgppjcp-pooler.c-4.us-east-2.aws.neon.tech/neondb?sslmode=require
-JWT_ACCESS_SECRET=super-secret-access-key-mini-erp-2026
-JWT_REFRESH_SECRET=super-secret-refresh-key-mini-erp-2026
+JWT_ACCESS_SECRET=2b24a3e8d61b6127e8bed92ef06f3c2ab87085aeae896a028e51e80b9991f31b
+JWT_REFRESH_SECRET=6b43fc13ed3eb123adbac4f372f25aba9c19e8f22173ce0566c3adb58224e039
 ```
 
 **Build & Run:**
