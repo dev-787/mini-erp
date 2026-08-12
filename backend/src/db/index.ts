@@ -92,6 +92,10 @@ export const initDb = async (): Promise<void> => {
   // Initialize Product & Inventory tables
   const { initProductTables } = await import('./product.db.js');
   await initProductTables();
+
+  // Initialize Sales Challan tables
+  const { initChallanTables } = await import('./challan.db.js');
+  await initChallanTables();
 };
 
 const seedDefaultUsers = async (): Promise<void> => {

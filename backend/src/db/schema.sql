@@ -1,4 +1,4 @@
--- Database Schema for Auth, Invite, Customer CRM, Product & Inventory System
+-- Database Schema for Auth, Invite, Customer CRM, Product & Inventory, and Sales Challan System
 
 CREATE TABLE IF NOT EXISTS users (
   id VARCHAR(36) PRIMARY KEY,
@@ -83,6 +83,33 @@ CREATE TABLE IF NOT EXISTS stock_movements (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Sales Challan Tables
+CREATE TABLE IF NOT EXISTS challans (
+  id VARCHAR(36) PRIMARY KEY,
+  challan_number VARCHAR(30) UNIQUE NOT NULL,
+  customer_id VARCHAR(36) NOT NULL REFERENCES customers(id),
+  status VARCHAR(20) NOT NULL DEFAULT 'Draft' CHECK (status IN ('Draft','Confirmed','Cancelled')),
+  total_quantity INTEGER NOT NULL DEFAULT 0,
+  created_by VARCHAR(36) NOT NULL REFERENCES users(id),
+  confirmed_by VARCHAR(36) REFERENCES users(id),
+  confirmed_at TIMESTAMP,
+  cancelled_by VARCHAR(36) REFERENCES users(id),
+  cancelled_at TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS challan_items (
+  id VARCHAR(36) PRIMARY KEY,
+  challan_id VARCHAR(36) NOT NULL REFERENCES challans(id) ON DELETE CASCADE,
+  product_id VARCHAR(36) NOT NULL REFERENCES products(id),
+  product_name_snapshot VARCHAR(255) NOT NULL,
+  product_sku_snapshot VARCHAR(50) NOT NULL,
+  unit_price_snapshot NUMERIC(12,2) NOT NULL,
+  quantity INTEGER NOT NULL CHECK (quantity > 0),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE INDEX IF NOT EXISTS idx_customers_status ON customers(status);
 CREATE INDEX IF NOT EXISTS idx_customers_name ON customers(name);
 CREATE INDEX IF NOT EXISTS idx_customer_notes_customer_id ON customer_notes(customer_id);
@@ -90,3 +117,7 @@ CREATE INDEX IF NOT EXISTS idx_customer_notes_customer_id ON customer_notes(cust
 CREATE INDEX IF NOT EXISTS idx_products_sku ON products(sku);
 CREATE INDEX IF NOT EXISTS idx_products_name ON products(name);
 CREATE INDEX IF NOT EXISTS idx_stock_movements_product_id ON stock_movements(product_id);
+
+CREATE INDEX IF NOT EXISTS idx_challans_customer_id ON challans(customer_id);
+CREATE INDEX IF NOT EXISTS idx_challans_status ON challans(status);
+CREATE INDEX IF NOT EXISTS idx_challan_items_challan_id ON challan_items(challan_id);
