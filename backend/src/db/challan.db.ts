@@ -76,15 +76,17 @@ const seedDefaultChallans = async (): Promise<void> => {
   // Find sample customer & products
   const pool = getPool();
   let custId = '';
+  let cust2Id = '';
   let prod1Id = '';
   let prod2Id = '';
 
   if (pool && isPgConnected()) {
     try {
-      const cRes = await pool.query('SELECT id FROM customers LIMIT 1');
+      const cRes = await pool.query('SELECT id FROM customers ORDER BY created_at DESC LIMIT 2');
       if (cRes.rows.length > 0) custId = cRes.rows[0].id;
+      if (cRes.rows.length > 1) cust2Id = cRes.rows[1].id;
 
-      const pRes = await pool.query('SELECT id FROM products LIMIT 2');
+      const pRes = await pool.query('SELECT id FROM products ORDER BY created_at DESC LIMIT 2');
       if (pRes.rows.length > 0) prod1Id = pRes.rows[0].id;
       if (pRes.rows.length > 1) prod2Id = pRes.rows[1].id;
     } catch (err: any) {
@@ -93,12 +95,23 @@ const seedDefaultChallans = async (): Promise<void> => {
   }
 
   if (custId && prod1Id) {
-    const items: ChallanItemInput[] = [
-      { product_id: prod1Id, quantity: 2 },
-    ];
-    if (prod2Id) items.push({ product_id: prod2Id, quantity: 5 });
+    // 1. Create and confirm a sales challan so revenue metrics and trend charts render data
+    try {
+      const confirmedItems: ChallanItemInput[] = [{ product_id: prod1Id, quantity: 10 }];
+      if (prod2Id) confirmedItems.push({ product_id: prod2Id, quantity: 2 });
+      const challan1 = await createDraftChallan(custId, confirmedItems, adminId);
+      await confirmChallan(challan1.id, adminId);
+    } catch (e: any) {
+      console.warn('[ChallanDB] Could not seed confirmed challan:', e.message);
+    }
 
-    await createDraftChallan(custId, items, adminId).catch(() => {});
+    // 2. Create a pending draft challan
+    try {
+      const draftItems: ChallanItemInput[] = [{ product_id: prod1Id, quantity: 3 }];
+      await createDraftChallan(cust2Id || custId, draftItems, adminId);
+    } catch (e: any) {
+      console.warn('[ChallanDB] Could not seed draft challan:', e.message);
+    }
   }
 };
 

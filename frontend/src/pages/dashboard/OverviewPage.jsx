@@ -57,11 +57,11 @@ const OverviewPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [range, dateFrom, dateTo]);
+  }, [range, dateFrom, dateTo, userRole]);
 
   useEffect(() => {
     loadData();
-  }, [loadData]);
+  }, [loadData, userRole, user?.id]);
 
   // Contextual Greeting
   const getGreetingTime = () => {
