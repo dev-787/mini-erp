@@ -295,3 +295,105 @@ export const getInviteById = async (id: string): Promise<Invite | null> => {
   }
   return memoryDb.invites.find(i => i.id === id) || null;
 };
+
+export const getAllUsers = async (filters?: { search?: string; role?: string; status?: string }): Promise<SafeUser[]> => {
+  const { search, role, status } = filters || {};
+  if (isPgConnectedFlag && pool) {
+    const conditions: string[] = [];
+    const params: any[] = [];
+
+    if (search) {
+      params.push(`%${search.toLowerCase()}%`);
+      conditions.push(`(LOWER(name) LIKE $${params.length} OR LOWER(email) LIKE $${params.length})`);
+    }
+
+    if (role) {
+      params.push(role.toLowerCase());
+      conditions.push(`LOWER(role) = $${params.length}`);
+    }
+
+    if (status) {
+      params.push(status.toLowerCase());
+      conditions.push(`LOWER(status) = $${params.length}`);
+    }
+
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const query = `SELECT id, name, email, role, status, created_at FROM users ${whereClause} ORDER BY created_at DESC`;
+    const res = await pool.query<SafeUser>(query, params);
+    return res.rows;
+  }
+
+  let result: SafeUser[] = memoryDb.users.map(({ id, name, email, role, status, created_at }) => ({
+    id,
+    name,
+    email,
+    role,
+    status: status || 'active',
+    created_at,
+  }));
+
+  if (search) {
+    const q = search.toLowerCase();
+    result = result.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+  }
+
+  if (role) {
+    const r = role.toLowerCase();
+    result = result.filter(u => u.role.toLowerCase() === r);
+  }
+
+  if (status) {
+    const s = status.toLowerCase();
+    result = result.filter(u => u.status.toLowerCase() === s);
+  }
+
+  return result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+};
+
+export const updateUserStatus = async (id: string, status: UserStatus): Promise<SafeUser | null> => {
+  if (isPgConnectedFlag && pool) {
+    const res = await pool.query<SafeUser>(
+      `UPDATE users SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING id, name, email, role, status, created_at`,
+      [status, id]
+    );
+    return res.rows[0] || null;
+  }
+
+  const u = memoryDb.users.find(u => u.id === id);
+  if (!u) return null;
+  u.status = status;
+  u.updated_at = new Date().toISOString();
+  const { password_hash, updated_at, ...safe } = u;
+  return safe;
+};
+
+export const findPendingInviteByEmail = async (email: string): Promise<Invite | null> => {
+  const normEmail = email.toLowerCase().trim();
+  const now = new Date();
+  if (isPgConnectedFlag && pool) {
+    const res = await pool.query<Invite>(
+      `SELECT * FROM invites WHERE LOWER(email) = $1 AND status = 'pending' AND expires_at > CURRENT_TIMESTAMP`,
+      [normEmail]
+    );
+    return res.rows[0] || null;
+  }
+  return memoryDb.invites.find(i => i.email.toLowerCase() === normEmail && i.status === 'pending' && new Date(i.expires_at) > now) || null;
+};
+
+export const resendInviteInDb = async (inviteId: string, newTokenHash: string, newExpiresAt: string): Promise<Invite | null> => {
+  if (isPgConnectedFlag && pool) {
+    const res = await pool.query<Invite>(
+      `UPDATE invites SET token_hash = $1, expires_at = $2, status = 'pending' WHERE id = $3 RETURNING *`,
+      [newTokenHash, newExpiresAt, inviteId]
+    );
+    return res.rows[0] || null;
+  }
+
+  const inv = memoryDb.invites.find(i => i.id === inviteId);
+  if (!inv) return null;
+  inv.token_hash = newTokenHash;
+  inv.expires_at = newExpiresAt;
+  inv.status = 'pending';
+  return inv;
+};
+

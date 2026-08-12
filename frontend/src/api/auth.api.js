@@ -112,6 +112,12 @@ export const revokeInvite = async (inviteId) => {
   });
 };
 
+export const resendInvite = async (inviteId) => {
+  return request(`/auth/invites/${inviteId}/resend`, {
+    method: 'POST',
+  });
+};
+
 // Session Management Methods
 export const getSessions = async () => {
   return request('/auth/sessions', {

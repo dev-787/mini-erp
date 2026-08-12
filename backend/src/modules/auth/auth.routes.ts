@@ -9,6 +9,7 @@ import {
   acceptInvite,
   getInvites,
   revokeInvite,
+  resendInvite,
   getSessions,
   revokeSession,
 } from './auth.controller.js';
@@ -32,5 +33,6 @@ router.delete('/sessions/:id', authenticate, revokeSession);
 router.post('/invite', authenticate, authorize('admin'), createInvite);
 router.get('/invites', authenticate, authorize('admin'), getInvites);
 router.delete('/invites/:id', authenticate, authorize('admin'), revokeInvite);
+router.post('/invites/:id/resend', authenticate, authorize('admin'), resendInvite);
 
 export default router;

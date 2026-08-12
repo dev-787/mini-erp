@@ -17,6 +17,8 @@ import {
   updateInviteStatus,
   getAllInvites,
   getInviteById,
+  findPendingInviteByEmail,
+  resendInviteInDb,
 } from '../../db/index.js';
 import {
   AuthenticatedRequest,
@@ -80,7 +82,7 @@ export const login = async (req: AuthenticatedRequest, res: Response): Promise<a
     }
 
     if (user.status === 'disabled') {
-      return res.status(403).json({ message: 'Account is disabled. Please contact an admin.' });
+      return res.status(403).json({ message: 'Your account has been disabled. Contact your administrator.' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password_hash);
@@ -262,7 +264,12 @@ export const createInvite = async (req: AuthenticatedRequest, res: Response): Pr
     const normEmail = (email as string).toLowerCase().trim();
     const existingUser = await findUserByEmail(normEmail);
     if (existingUser) {
-      return res.status(409).json({ message: 'A user with this email already exists.' });
+      return res.status(409).json({ message: 'User already exists' });
+    }
+
+    const pendingInvite = await findPendingInviteByEmail(normEmail);
+    if (pendingInvite) {
+      return res.status(409).json({ message: 'An invite is already pending for this email' });
     }
 
     const rawToken = crypto.randomBytes(32).toString('hex');
@@ -457,6 +464,49 @@ export const revokeInvite = async (req: AuthenticatedRequest, res: Response): Pr
     return res.status(500).json({ message: 'Failed to revoke invite.' });
   }
 };
+
+export const resendInvite = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+  try {
+    const id = req.params.id as string;
+    const invite = await getInviteById(id);
+
+    if (!invite) {
+      return res.status(404).json({ message: 'Invite not found.' });
+    }
+
+    if (['accepted', 'revoked'].includes(invite.status)) {
+      return res.status(400).json({ message: `Cannot resend invite with status '${invite.status}'.` });
+    }
+
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const tokenHash = hashToken(rawToken);
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+
+    const updatedInvite = await resendInviteInDb(id, tokenHash, expiresAt);
+    if (!updatedInvite) {
+      return res.status(500).json({ message: 'Failed to update invite details.' });
+    }
+
+    const inviteLink = `${req.protocol}://${req.get('host')}/accept-invite?token=${rawToken}`;
+
+    return res.json({
+      message: 'Invite resent successfully',
+      invite: {
+        id: updatedInvite.id,
+        email: updatedInvite.email,
+        role: updatedInvite.role,
+        status: 'pending',
+        expires_at: expiresAt,
+      },
+      rawToken,
+      inviteLink,
+    });
+  } catch (err) {
+    console.error('Resend invite error:', err);
+    return res.status(500).json({ message: 'Failed to resend invite.' });
+  }
+};
+
 
 export const getSessions = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
   try {

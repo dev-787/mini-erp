@@ -1,0 +1,459 @@
+/* Users & Invites Management Page Styles */
+
+.users-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-bottom: 40px;
+}
+
+.users-header-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid #e2e8fo;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.users-header-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.users-header-subtitle {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: #64748b;
+}
+
+/* Tabs Navigation */
+.users-tabs-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 2px solid #e2e8f0;
+  padding: 0 4px;
+}
+
+.users-tab-btn {
+  padding: 12px 20px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s ease;
+}
+
+.users-tab-btn:hover {
+  color: #0f172a;
+}
+
+.users-tab-btn.active {
+  color: #ff540e;
+  border-bottom-color: #ff540e;
+}
+
+.users-tab-count {
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.users-tab-btn.active .users-tab-count {
+  background: #ffede8;
+  color: #ff540e;
+}
+
+/* Toolbar & Filters */
+.users-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  background: #ffffff;
+  padding: 16px 20px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.users-search-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 260px;
+}
+
+.users-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+.users-search-input {
+  width: 100%;
+  padding: 9px 12px 9px 38px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.users-search-input:focus {
+  border-color: #ff540e;
+  box-shadow: 0 0 0 3px rgba(255, 84, 14, 0.1);
+}
+
+.users-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.users-select-filter {
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 13px;
+  background: #ffffff;
+  color: #334155;
+  outline: none;
+  cursor: pointer;
+}
+
+.users-select-filter:focus {
+  border-color: #ff540e;
+}
+
+/* Buttons */
+.users-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #ff540e;
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.users-btn-primary:hover {
+  background-color: #e04403;
+}
+
+.users-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.users-btn-secondary:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.users-btn-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #dc2626;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.users-btn-danger:hover {
+  background: #fee2e2;
+  border-color: #ef4444;
+}
+
+.users-btn-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #16a34a;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.users-btn-action:hover {
+  background: #dcfce7;
+  border-color: #4ade80;
+}
+
+/* Table */
+.users-table-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.users-table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+}
+
+.users-table th {
+  background-color: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 14px 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.users-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+}
+
+.users-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.users-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Badges */
+.role-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.role-badge.admin {
+  background: #f3e8ff;
+  color: #6b21a8;
+}
+
+.role-badge.sales {
+  background: #eff6ff;
+  color: #1e40af;
+}
+
+.role-badge.warehouse {
+  background: #ffe4e6;
+  color: #9f1239;
+}
+
+.role-badge.accounts {
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.user-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.user-status-pill.active {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.user-status-pill.disabled {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.invite-status-pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.invite-status-pill.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.invite-status-pill.accepted {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.invite-status-pill.revoked {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.invite-status-pill.expired {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* Toast Banners */
+.toast-success-banner {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.toast-error-banner {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  color: #991b1b;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-card {
+  background: #ffffff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Form Styles */
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 6px;
+}
+
+.form-input, .form-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus, .form-select:focus {
+  border-color: #ff540e;
+  box-shadow: 0 0 0 3px rgba(255, 84, 14, 0.1);
+}

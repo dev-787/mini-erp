@@ -10,6 +10,7 @@ import inventoryRoutes from './modules/inventory/inventory.routes.js';
 import stockMovementRoutes from './modules/inventory/stockMovement.routes.js';
 import challanRoutes from './modules/challan/challan.routes.js';
 import auditRoutes from './modules/audit/audit.routes.js';
+import userRoutes from './modules/user/user.routes.js';
 
 const app = express();
 
@@ -59,6 +60,9 @@ app.use('/challans', challanRoutes);
 
 app.use('/api/audit-log', auditRoutes);
 app.use('/audit-log', auditRoutes);
+
+app.use('/api/users', userRoutes);
+app.use('/users', userRoutes);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error('[Server Error]', err.stack || err.message || err);
