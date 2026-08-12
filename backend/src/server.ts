@@ -11,6 +11,7 @@ import stockMovementRoutes from './modules/inventory/stockMovement.routes.js';
 import challanRoutes from './modules/challan/challan.routes.js';
 import auditRoutes from './modules/audit/audit.routes.js';
 import userRoutes from './modules/user/user.routes.js';
+import dashboardRoutes from './modules/dashboard/dashboard.routes.js';
 
 const app = express();
 
@@ -63,6 +64,9 @@ app.use('/audit-log', auditRoutes);
 
 app.use('/api/users', userRoutes);
 app.use('/users', userRoutes);
+
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/dashboard', dashboardRoutes);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error('[Server Error]', err.stack || err.message || err);

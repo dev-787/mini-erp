@@ -812,3 +812,125 @@ export const cancelChallan = async (
   const updated = await findChallanById(id);
   return updated!;
 };
+
+export interface RevenueTrendPoint {
+  date: string;
+  revenue: number;
+}
+
+export interface RevenueMetrics {
+  revenueToday: number;
+  totalRevenuePeriod: number;
+  profitEstimate: number;
+  trend: RevenueTrendPoint[];
+}
+
+export const getChallanMetricsInDb = async (
+  startDateIso?: string,
+  endDateIso?: string
+): Promise<{ pendingDraftChallans: number; revenue: RevenueMetrics }> => {
+  const pool = getPool();
+  const start = startDateIso ? new Date(startDateIso) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const end = endDateIso ? new Date(endDateIso) : new Date();
+
+  end.setHours(23, 59, 59, 999);
+
+  if (pool && isPgConnected()) {
+    try {
+      const draftRes = await pool.query(`SELECT COUNT(*)::int AS count FROM challans WHERE status = 'Draft'`);
+      const pendingDraftChallans = Number(draftRes.rows[0]?.count || 0);
+
+      const revTodayRes = await pool.query(`
+        SELECT COALESCE(SUM(ci.quantity * ci.unit_price_snapshot), 0)::numeric AS revenue_today
+        FROM challans c
+        JOIN challan_items ci ON c.id = ci.challan_id
+        WHERE c.status = 'Confirmed' AND c.confirmed_at >= CURRENT_DATE
+      `);
+      const revenueToday = Number(revTodayRes.rows[0]?.revenue_today || 0);
+
+      const revPeriodRes = await pool.query(`
+        SELECT COALESCE(SUM(ci.quantity * ci.unit_price_snapshot), 0)::numeric AS total_revenue
+        FROM challans c
+        JOIN challan_items ci ON c.id = ci.challan_id
+        WHERE c.status = 'Confirmed' AND c.confirmed_at >= $1 AND c.confirmed_at <= $2
+      `, [start.toISOString(), end.toISOString()]);
+      const totalRevenuePeriod = Number(revPeriodRes.rows[0]?.total_revenue || 0);
+
+      const trendRes = await pool.query(`
+        SELECT
+          TO_CHAR(c.confirmed_at, 'YYYY-MM-DD') AS date,
+          SUM(ci.quantity * ci.unit_price_snapshot)::numeric AS revenue
+        FROM challans c
+        JOIN challan_items ci ON c.id = ci.challan_id
+        WHERE c.status = 'Confirmed' AND c.confirmed_at >= $1 AND c.confirmed_at <= $2
+        GROUP BY TO_CHAR(c.confirmed_at, 'YYYY-MM-DD')
+        ORDER BY date ASC
+      `, [start.toISOString(), end.toISOString()]);
+
+      const trend: RevenueTrendPoint[] = trendRes.rows.map((r: any) => ({
+        date: r.date,
+        revenue: Number(r.revenue || 0),
+      }));
+
+      return {
+        pendingDraftChallans,
+        revenue: {
+          revenueToday,
+          totalRevenuePeriod,
+          profitEstimate: totalRevenuePeriod,
+          trend,
+        },
+      };
+    } catch (err: any) {
+      console.warn('[ChallanDB] Metrics query PG error:', err.message);
+    }
+  }
+
+  // Memory fallback logic
+  const pendingDraftChallans = memoryChallans.filter((c) => c.status === 'Draft').length;
+
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  let revenueToday = 0;
+  let totalRevenuePeriod = 0;
+  const trendMap: Record<string, number> = {};
+
+  const confirmedChallans = memoryChallans.filter((c) => c.status === 'Confirmed' && c.confirmed_at);
+
+  for (const ch of confirmedChallans) {
+    const confDate = new Date(ch.confirmed_at!);
+    const dateStr = confDate.toISOString().split('T')[0];
+    const items = memoryChallanItems.filter((i) => i.challan_id === ch.id);
+    const challanTotal = items.reduce(
+      (sum, item) => sum + item.quantity * Number(item.unit_price_snapshot || 0),
+      0
+    );
+
+    if (dateStr === todayStr) {
+      revenueToday += challanTotal;
+    }
+
+    if (confDate >= start && confDate <= end) {
+      totalRevenuePeriod += challanTotal;
+      trendMap[dateStr] = (trendMap[dateStr] || 0) + challanTotal;
+    }
+  }
+
+  const trend: RevenueTrendPoint[] = Object.keys(trendMap)
+    .sort()
+    .map((d) => ({
+      date: d,
+      revenue: trendMap[d],
+    }));
+
+  return {
+    pendingDraftChallans,
+    revenue: {
+      revenueToday,
+      totalRevenuePeriod,
+      profitEstimate: totalRevenuePeriod,
+      trend,
+    },
+  };
+};
+

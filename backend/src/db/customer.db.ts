@@ -443,3 +443,62 @@ export const insertCustomerNote = async (
   memoryCustomerNotes.unshift(newNote);
   return newNote;
 };
+
+export interface CustomerMetrics {
+  total: number;
+  followUpsDueToday: number;
+  byStatus: {
+    Lead: number;
+    Active: number;
+    Inactive: number;
+  };
+}
+
+export const getCustomerMetricsInDb = async (): Promise<CustomerMetrics> => {
+  const pool = getPool();
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  if (pool && isPgConnected()) {
+    try {
+      const aggRes = await pool.query(`
+        SELECT
+          COUNT(*)::int AS total,
+          COUNT(CASE WHEN follow_up_date = CURRENT_DATE THEN 1 END)::int AS follow_ups_due_today,
+          COUNT(CASE WHEN status = 'Lead' THEN 1 END)::int AS lead_count,
+          COUNT(CASE WHEN status = 'Active' THEN 1 END)::int AS active_count,
+          COUNT(CASE WHEN status = 'Inactive' THEN 1 END)::int AS inactive_count
+        FROM customers
+      `);
+      const row = aggRes.rows[0] || {};
+      return {
+        total: Number(row.total || 0),
+        followUpsDueToday: Number(row.follow_ups_due_today || 0),
+        byStatus: {
+          Lead: Number(row.lead_count || 0),
+          Active: Number(row.active_count || 0),
+          Inactive: Number(row.inactive_count || 0),
+        },
+      };
+    } catch (err: any) {
+      console.warn('[CustomerDB] Customer metrics PG query error:', err.message);
+    }
+  }
+
+  // Memory fallback
+  const total = memoryCustomers.length;
+  const followUpsDueToday = memoryCustomers.filter(c => c.follow_up_date && c.follow_up_date.startsWith(todayStr)).length;
+  const lead_count = memoryCustomers.filter(c => c.status === 'Lead').length;
+  const active_count = memoryCustomers.filter(c => c.status === 'Active').length;
+  const inactive_count = memoryCustomers.filter(c => c.status === 'Inactive').length;
+
+  return {
+    total,
+    followUpsDueToday,
+    byStatus: {
+      Lead: lead_count,
+      Active: active_count,
+      Inactive: inactive_count,
+    },
+  };
+};
+
