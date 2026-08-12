@@ -49,6 +49,52 @@ export const clearAuthTokens = () => {
   }
 };
 
+// Single-flight promise mutex to prevent concurrent refresh race conditions
+let refreshPromise = null;
+
+const executeRefreshToken = async () => {
+  const currentRefreshToken = getRefreshToken();
+  if (!currentRefreshToken) {
+    clearAuthTokens();
+    clearAuthStore();
+    return null;
+  }
+
+  try {
+    const refreshRes = await fetch(`${API_BASE_URL}/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken: currentRefreshToken }),
+      credentials: 'include',
+    });
+
+    if (refreshRes.ok) {
+      const refreshData = await refreshRes.json();
+      if (refreshData.token) {
+        setAuthTokens({ accessToken: refreshData.token, refreshToken: refreshData.refreshToken });
+        return refreshData.token;
+      }
+    }
+
+    clearAuthTokens();
+    clearAuthStore();
+    return null;
+  } catch (err) {
+    clearAuthTokens();
+    clearAuthStore();
+    return null;
+  } finally {
+    refreshPromise = null;
+  }
+};
+
+const performRefresh = () => {
+  if (!refreshPromise) {
+    refreshPromise = executeRefreshToken();
+  }
+  return refreshPromise;
+};
+
 export const request = async (endpoint, options = {}) => {
   const url = `${API_BASE_URL}${endpoint}`;
   const token = getAccessToken();
@@ -74,38 +120,13 @@ export const request = async (endpoint, options = {}) => {
 
   let response = await fetch(url, config);
 
-  // If 401 Unauthorized and not calling refresh/login/accept-invite
+  // If 401 Unauthorized and not calling auth endpoints directly
   if (response.status === 401 && endpoint !== '/auth/refresh' && endpoint !== '/auth/login' && endpoint !== '/auth/accept-invite') {
-    const currentRefreshToken = getRefreshToken();
+    const newToken = await performRefresh();
 
-    // Only attempt refresh if a refresh token exists
-    if (currentRefreshToken) {
-      try {
-        const refreshRes = await fetch(`${API_BASE_URL}/auth/refresh`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ refreshToken: currentRefreshToken }),
-          credentials: 'include',
-        });
-
-        if (refreshRes.ok) {
-          const refreshData = await refreshRes.json();
-          if (refreshData.token) {
-            setAuthTokens({ accessToken: refreshData.token, refreshToken: refreshData.refreshToken });
-            headers['Authorization'] = `Bearer ${refreshData.token}`;
-            response = await fetch(url, { ...config, headers });
-          }
-        } else {
-          clearAuthTokens();
-          clearAuthStore();
-        }
-      } catch (err) {
-        clearAuthTokens();
-        clearAuthStore();
-      }
-    } else {
-      clearAuthTokens();
-      clearAuthStore();
+    if (newToken) {
+      headers['Authorization'] = `Bearer ${newToken}`;
+      response = await fetch(url, { ...config, headers });
     }
   }
 
