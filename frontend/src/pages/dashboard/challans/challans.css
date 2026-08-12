@@ -1,0 +1,94 @@
+/* Sales Challan Module Styles */
+@import '../products/products.css';
+
+.challan-number-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 13px;
+  font-weight: 700;
+  background-color: #F8FAFC;
+  color: #0F172A;
+  border: 1px solid #CBD5E1;
+}
+
+/* Status Pill Styling */
+.status-badge.draft {
+  background-color: #F1F5F9;
+  color: #475569;
+  border: 1px solid #CBD5E1;
+}
+
+.status-badge.confirmed {
+  background-color: #ECFDF5;
+  color: #059669;
+  border: 1px solid #A7F3D0;
+}
+
+.status-badge.cancelled {
+  background-color: #FEF2F2;
+  color: #DC2626;
+  border: 1px solid #FECACA;
+}
+
+/* Shortages Warning Box */
+.shortages-banner {
+  background-color: #FEF2F2;
+  border: 1px solid #FCA5A5;
+  border-radius: 12px;
+  padding: 20px;
+  color: #991B1B;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.shortages-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+.shortages-table th {
+  text-align: left;
+  padding: 8px 12px;
+  background-color: #FEE2E2;
+  color: #991B1B;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+.shortages-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #FCA5A5;
+  color: #7F1D1D;
+  font-weight: 600;
+}
+
+/* Challan Form Table Editor */
+.line-item-row {
+  transition: background-color 0.15s ease;
+}
+
+.line-item-row:hover {
+  background-color: #F8FAFC;
+}
+
+.qty-input {
+  width: 90px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #CBD5E1;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0F172A;
+  outline: none;
+}
+
+.qty-input:focus {
+  border-color: #FF540E;
+}

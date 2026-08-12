@@ -17,7 +17,10 @@ import ProductsListPage from './pages/dashboard/products/ProductsListPage';
 import ProductDetailPage from './pages/dashboard/products/ProductDetailPage';
 import InventoryOverviewPage from './pages/dashboard/inventory/InventoryOverviewPage';
 
-import ChallansPage from './pages/dashboard/ChallansPage';
+import ChallansListPage from './pages/dashboard/challans/ChallansListPage';
+import ChallanFormPage from './pages/dashboard/challans/ChallanFormPage';
+import ChallanDetailPage from './pages/dashboard/challans/ChallanDetailPage';
+
 import UsersPage from './pages/dashboard/UsersPage';
 import AuditLogPage from './pages/dashboard/AuditLogPage';
 
@@ -85,14 +88,40 @@ function App() {
             }
           />
 
+          {/* Sales Challan Routes */}
           <Route
             path="challans"
             element={
               <RoleGuard path="/dashboard/challans">
-                <ChallansPage />
+                <ChallansListPage />
               </RoleGuard>
             }
           />
+          <Route
+            path="challans/new"
+            element={
+              <RoleGuard path="/dashboard/challans">
+                <ChallanFormPage />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="challans/:id"
+            element={
+              <RoleGuard path="/dashboard/challans">
+                <ChallanDetailPage />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="challans/:id/edit"
+            element={
+              <RoleGuard path="/dashboard/challans">
+                <ChallanFormPage />
+              </RoleGuard>
+            }
+          />
+
           <Route
             path="users"
             element={
